@@ -1,0 +1,19 @@
+{
+  "name": "wry",
+  "version": "0.0.1",
+  "description": "An elegant build system based on composable async functions",
+  "main": "lib/wry.js",
+  "author": "Will Henderson",
+  "license": "MIT",
+  "dependencies": {
+    "glob": "^7.1.2",
+    "globby": "^7.1.1",
+    "mri": "^1.1.0",
+    "ramda": "^0.25.0"
+  },
+  "files": [
+    "lib",
+    "cli.js"
+  ],
+  "bin": "cli.js"
+}
