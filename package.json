@@ -15,5 +15,7 @@
     "lib",
     "cli.js"
   ],
-  "bin": "cli.js"
+  "bin": {
+    "wry": "./cli.js"
+  }
 }

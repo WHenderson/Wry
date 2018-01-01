@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 'use strict';
 
 const p = require('path');
@@ -5,13 +6,15 @@ const util = require('util');
 const fs = require('fs');
 const process = require('process');
 
+const R = require('ramda');
+
 const cli = require('./lib/cli');
 const Wry = require('./lib/wry');
 const WryError = require('./lib/wryError');
 
 const readFileAsync = util.promisify(fs.readFile);
 
-async function loadPackageJsonAsync() {
+async function loadPackageJsonAsync(o) {
   const fn = p.normalize(p.resolve(o.cwd || '.', 'package.json'));
   try {
     const text = await readFileAsync(fn, {encoding: 'utf8'});
@@ -47,7 +50,16 @@ function loadWryFile(fn) {
 
     const wry = new Wry();
 
-    const packageJson = await loadPackageJsonAsync();
+    const packageJson = await loadPackageJsonAsync(o);
+
+    if (typeof packageJson.wry === 'string')
+      packageJson.wry = { wryfile: packageJson.wry };
+    else if (typeof packageJson.wry !== 'object')
+      packageJson.wry = {};
+
+    if (packageJson.wry.wryfile !== 'string')
+      packageJson.wry.wryfile = 'wryfile.js';
+
     // Load extensions
     cli.extend.applyExtensions(
       wry,
@@ -55,7 +67,7 @@ function loadWryFile(fn) {
     );
 
     // Load wryFile
-    const wryFilePath = p.normalize(p.resolve(o.cwd, packageJson?.wry?.wryfile || 'wryfile.js'));
+    const wryFilePath = p.normalize(p.resolve(o.cwd, packageJson.wry.wryfile));
     const wryFile = require(wryFilePath);
     if (typeof wryFile !== 'object')
       throw new WryError(`wryfile \`${wryFilePath}\` does not export an object`);
@@ -64,14 +76,22 @@ function loadWryFile(fn) {
 
     for (const [key, val] of Object.entries(wryFile)) {
       if (typeof val === 'function') {
-        wry.plugin({name: key, func: val});
+        Wry.plugin({
+          name: key,
+          func: function (...args) {
+            const self = this;
+            return async function () {
+              return await val.call(self, ...args).resolve(); // TODO: wryfile functions maybe shouldn't be regular plugins expecting a "files" argument?
+            }
+          }
+        });
         names.push(key);
         continue;
       }
 
       if (typeof val === 'object') {
         const opt = Object.assign({ name: key }, val);
-        wry.plugin(opt);
+        Wry.plugin(opt);
         names.push(opt.name);
         continue;
       }
@@ -84,7 +104,15 @@ function loadWryFile(fn) {
       return;
     }
 
-    await wry[o.mode](o.tasks.length ? o.tasks : ['default']).resolve([]);
+    const tasks = o.tasks.length ? o.tasks : ['default'];
+
+    const invalidTasks = R.difference(tasks, names);
+    if (invalidTasks.length !== 0) {
+      throw new WryError(`The requested task(s) (${tasks.join()}) are not listed in \`${packageJson.wry.wryfile}\``)
+    }
+
+
+    await wry[o.mode](tasks.map(task => wry[task]())).resolve([]);
   }
   catch (ex) {
     console.error(ex.message);
