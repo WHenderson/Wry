@@ -1,5 +1,8 @@
 module.exports = {
-  $log: function () {
-    return this.source('*.*').log();
+  sources: '*.*',
+
+  $log: function (wry, args) {
+    console.log('args:', args);
+    return wry.source(this.sources).log();
   }
 };

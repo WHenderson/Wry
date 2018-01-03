@@ -72,47 +72,18 @@ function loadWryFile(fn) {
     if (typeof wryFile !== 'object')
       throw new WryError(`wryfile \`${wryFilePath}\` does not export an object`);
 
-    const names = [];
-
-    for (const [key, val] of Object.entries(wryFile)) {
-      if (typeof val === 'function') {
-        Wry.plugin({
-          name: key,
-          func: function (...args) {
-            const self = this;
-            return async function () {
-              return await val.call(self, ...args).resolve(); // TODO: wryfile functions maybe shouldn't be regular plugins expecting a "files" argument?
-            }
-          }
-        });
-        names.push(key);
-        continue;
-      }
-
-      if (typeof val === 'object') {
-        const opt = Object.assign({ name: key }, val);
-        Wry.plugin(opt);
-        names.push(opt.name);
-        continue;
-      }
-
-      throw new WryError(`wryfile export \`${key}\` is of an invalid type`);
-    }
+    const names = Object.entries(wryFile).filter(([key, val]) => !key.startsWith('_') && typeof val === 'function').map(([key,val]) => key);
 
     if (o.list) {
       names.forEach((name) => console.log(name));
       return;
     }
 
-    const tasks = o.tasks.length ? o.tasks : ['default'];
+    const invalidTasks = R.difference(o.tasks, names);
+    if (invalidTasks.length !== 0)
+      throw new WryError(`The requested task(s) (${invalidTasks.join()}) are not exported from \`${packageJson.wry.wryfile}\``)
 
-    const invalidTasks = R.difference(tasks, names);
-    if (invalidTasks.length !== 0) {
-      throw new WryError(`The requested task(s) (${tasks.join()}) are not listed in \`${packageJson.wry.wryfile}\``)
-    }
-
-
-    await wry[o.mode](tasks.map(task => wry[task]())).resolve([]);
+    await wry[o.mode](o.tasks.map(task => wryFile[task].call(wryFile, wry, o._cmdArgs))).resolve([]);
   }
   catch (ex) {
     console.error(ex.message);
