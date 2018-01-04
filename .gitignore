@@ -60,3 +60,6 @@ typings/
 # "hidden" items
 /.*
 
+# coverage
+/coverage
+

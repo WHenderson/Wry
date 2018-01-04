@@ -31,11 +31,11 @@ test('options', t => {
   t.deepEqual(cli.options(['-v']), Object.assign({}, oDefault, { v: true, version: true}), '-v');
   t.deepEqual(cli.options(['--version']), Object.assign({}, oDefault, { v: true, version: true}), '-v');
 
-  t.deepEqual(cli.options(['-h']), Object.assign({}, oDefault, { v: true, version: true}), '-h');
-  t.deepEqual(cli.options(['--help']), Object.assign({}, oDefault, { v: true, version: true}), '-help');
+  t.deepEqual(cli.options(['-h']), Object.assign({}, oDefault, { h: true, help: true}), '-h');
+  t.deepEqual(cli.options(['--help']), Object.assign({}, oDefault, { h: true, help: true}), '-help');
 
   t.deepEqual(cli.options(['cmd1', 'cmd2']), Object.assign({}, oDefault, { _: ['cmd1', 'cmd2'], tasks: ['cmd1', 'cmd2'] }), 'cmd1 cmd2');
   t.deepEqual(cli.options(['cmd1', '--', 'arg1', 'arg2']), Object.assign({}, oDefault, { _: ['cmd1'], tasks: ['cmd1'], _cmdArgs: ['arg1', 'arg2'] }), 'cmd1 -- arg1 arg2');
 
-  t.throws(() => cli.options(['--no-such-arg']));
+  t.throws(() => cli.options(['--bad-arg']));
 });
