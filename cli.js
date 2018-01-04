@@ -84,7 +84,7 @@ function loadWryFile(fn) {
       throw new WryError(`The requested task(s) (${invalidTasks.join()}) are not exported from \`${packageJson.wry.wryfile}\``)
 
     await wry[o.mode](o.tasks.map(task => wryFile[task].call(wryFile, wry, o._cmdArgs))).resolve([]);
-  }
+    }
   catch (ex) {
     console.error(ex.message);
     if (!!ex.data)
