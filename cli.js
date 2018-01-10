@@ -61,9 +61,9 @@ function loadWryFile(fn) {
       packageJson.wry.wryfile = 'wryfile.js';
 
     // Load extensions
-    cli.extend.applyExtensions(
+    cli.extensions.applyExtensions(
       wry,
-      cli.extend.getExtensionsList(packageJson, o.cwd)
+      cli.extensions.getExtensionsList(packageJson, o.cwd)
     );
 
     // Load wryFile

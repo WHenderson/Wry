@@ -1,0 +1,10 @@
+{
+  "name": "cli-moduleExtensions",
+  "version": "0.0.1",
+  "dependencies": {
+    
+  },
+  "wry": {
+    "moduleExtensions": ["a","b"]
+  }
+}

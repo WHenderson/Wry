@@ -1,6 +1,7 @@
 import test from 'ava';
 
 const cli = require('../lib/cli');
+const p = require('path');
 
 test('options', t => {
   const oDefault =  {
@@ -38,4 +39,114 @@ test('options', t => {
   t.deepEqual(cli.options(['cmd1', '--', 'arg1', 'arg2']), Object.assign({}, oDefault, { _: ['cmd1'], tasks: ['cmd1'], _cmdArgs: ['arg1', 'arg2'] }), 'cmd1 -- arg1 arg2');
 
   t.throws(() => cli.options(['--bad-arg']));
+});
+
+test('WryPackageModule', t => {
+  const getFixture  = (dir) => p.resolve(__dirname, 'fixtures', dir, 'package.json');
+
+  t.deepEqual(
+    new cli.WryPackageModule(getFixture('cli-none')).pkg,
+    {
+      "name": "cli-none",
+      "version": "0.0.1",
+      "dependencies": {},
+      "wry": {
+        "wryFile": "wryfile"
+      }
+    }
+  );
+
+  t.deepEqual(
+    new cli.WryPackageModule(getFixture('cli-wryFile')).pkg,
+    {
+      "name": "cli-wryFile",
+      "version": "0.0.1",
+      "dependencies": {},
+      "wry": {
+        "wryFile": "myWryFile.js"
+      }
+    }
+  );
+
+  t.deepEqual(
+    new cli.WryPackageModule(getFixture('cli-none')).getModuleExtensionsList(),
+    []
+  );
+
+  t.deepEqual(
+    new cli.WryPackageModule(getFixture('cli-moduleExtensions')).getModuleExtensionsList(),
+    [
+      'a',
+      'b'
+    ],
+  );
+
+  t.deepEqual(
+    new cli.WryPackageModule(getFixture('cli-dependencies')).getModuleExtensionsList(),
+    [
+      'wry-dep-b',
+      'wry/dep-c',
+      'wry-devDep-b',
+      'wry/devDep-c',
+      'wry-peerDep-b',
+      'wry/peerDep-c'
+    ]
+  );
+
+  t.deepEqual(
+    new cli.WryPackageModule(getFixture('cli-none')).getLocalExtensionsList(),
+    []
+  );
+
+  t.deepEqual(
+    new cli.WryPackageModule(getFixture('cli-localExtensions')).getLocalExtensionsList(),
+    [
+      'a',
+      'b'
+    ]
+  );
+
+  t.deepEqual(
+    new cli.WryPackageModule(getFixture('cli-none')).getExtensionsList(),
+    []
+  );
+
+  t.deepEqual(
+    new cli.WryPackageModule(getFixture('cli-localExtensions')).getExtensionsList(),
+    new cli.WryPackageModule(getFixture('cli-localExtensions')).getLocalExtensionsList()
+  );
+
+  t.deepEqual(
+    new cli.WryPackageModule(getFixture('cli-moduleExtensions')).getExtensionsList(),
+    new cli.WryPackageModule(getFixture('cli-moduleExtensions')).getModuleExtensionsList()
+  );
+
+  t.deepEqual(
+    new cli.WryPackageModule(getFixture('cli-all')).getExtensionsList(),
+    [
+      'module-a',
+      'module-b',
+      "local-a",
+      "local-b"
+    ]
+  );
+
+  t.deepEqual(
+    new cli.WryPackageModule(getFixture('cli-dependenciesAndLocalExtensions')).getExtensionsList(),
+    [
+      'wry-dep-b',
+      'wry/dep-c',
+      'wry-devDep-b',
+      'wry/devDep-c',
+      'wry-peerDep-b',
+      'wry/peerDep-c',
+      "local-a",
+      "local-b"
+    ]
+  );
+
+  t.deepEqual(
+    new cli.WryPackageModule(getFixture('cli-noModuleExtensions')).getExtensionsList(),
+    []
+  );
 });

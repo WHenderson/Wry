@@ -1,0 +1,9 @@
+{
+  "name": "wryfile",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "hello-world-npm": "^1.1.1"
+  }
+}

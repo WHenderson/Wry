@@ -1,0 +1,8 @@
+{
+  "name": "cli-wryFile",
+  "version": "0.0.1",
+  "dependencies": {
+    
+  },
+  "wry": "myWryFile.js"
+}

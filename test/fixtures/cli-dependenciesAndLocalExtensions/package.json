@@ -1,0 +1,22 @@
+{
+  "name": "cli-dependenciesAndLocalExtensions",
+  "version": "0.0.1",
+  "dependencies": {
+    "dep-a": "^1.0.0",
+    "wry-dep-b": "^1.0.0",
+    "wry/dep-c": "^1.0.0"
+  },
+  "devDependencies": {
+    "devDep-a": "^1.0.0",
+    "wry-devDep-b": "^1.0.0",
+    "wry/devDep-c": "^1.0.0"
+  },
+  "peerDependencies": {
+    "peerDep-a": "^1.0.0",
+    "wry-peerDep-b": "^1.0.0",
+    "wry/peerDep-c": "^1.0.0"
+  },
+  "wry": {
+    "localExtensions": ["local-a", "local-b"]
+  }
+}

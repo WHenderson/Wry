@@ -1,0 +1,10 @@
+{
+  "name": "cli-localExtensions",
+  "version": "0.0.1",
+  "dependencies": {
+    
+  },
+  "wry": {
+    "localExtensions": ["a","b"]
+  }
+}
